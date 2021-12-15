@@ -1,0 +1,10 @@
+hello;привет
+world;мир
+how;как
+adventure;приключение
+genius;гений
+development;разработка
+achieve;достигать
+play;играть
+liquid;жидкость
+bear;медведь
