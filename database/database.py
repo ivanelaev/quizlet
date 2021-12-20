@@ -1,9 +1,11 @@
-import re
 import sqlite3
 from .config import *
 
 
 class DataBase:
+    """
+    Класс для работы с базой данных.
+    """
 
     def __init__(self):
         self.connection = sqlite3.connect(database=db_name)
@@ -16,11 +18,7 @@ class DataBase:
 
     def add_word_definition(self, eng_word: str, rus_word: str):
         """Добавляет слово и его перевод в словарь"""
-        try:
-            assert re.match(r'[a-z]*', eng_word.lower()), 'Первое слово должно быть на английском языке'
-            assert re.match(r'[а-я]*', rus_word.lower()), 'Второе слово должно быть на русском языке'
-        except Exception as _ex:
-            return _ex
+
         cursor = self.connection.cursor()
         cursor.execute(
             f"""INSERT INTO Dictionary (eng_word, rus_word) VALUES
