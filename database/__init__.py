@@ -1,1 +1,1 @@
-from .database import DataBase
+from .quizlet_database import QuizletDataBase

@@ -1,34 +1,43 @@
-from database import DataBase
-from helpers import InputFormat
+from database import QuizletDataBase
+from helpers import get_words_pair
 from log import log, print_error
 
 
 class Quizlet:
-    def __init__(self):
-        self.db = DataBase()
-        log('''
+    """Класс, реализующий взаимодействие с пользователем"""
+
+    WELCOME_MESSAGE = '''
         Привет, это программа-помощник для изучения английского языка.
         Для того, чтобы записать новые слова, введи 1
         Для того, чтобы проверить свои знания, введи 2
         Для того, чтобы посмотреть весь словарь, введи 3
         Чтобы выйти, нажмите "Enter" при вводе команды
-        ''')
-        self.menu()
+        '''
+    CONTEST_MESSAGE =  '''
+        Давай проверим твои знания.
+        Я буду вывоводить иностранное слово - нужно ввести перевод
+        Но для начала, скажи, сколько слов будем проверять?
+        '''
+
+    def __init__(self):
+        self.db = QuizletDataBase()
+        log(self.WELCOME_MESSAGE)
 
     def menu(self):
-        """Обработать ответ"""
+        """Основной метод взаимодействия с пользователем"""
+
         response = input('Введите команду: ')
         try:
             if response == '1':
-                self.add_word()
+                self.__add_word()
             elif response == '2':
-                self.contest_mode()
+                self.__contest_mode()
             elif response == '3':
-                self.print_all_dictionary()
+                self.__print_all_dictionary()
             elif response.lower() == 'help':
-                self.print_help()
+                self.__print_help()
             else:
-                return self.quit()
+                return self.__quit()
             input('Нажмите "Enter", чтобы продолжить...')
         except AssertionError as _err:
             print_error(str(_err))
@@ -37,28 +46,23 @@ class Quizlet:
         ''')
         self.menu()
 
-    def add_word(self):
-        """Добавление слова"""
+    def __add_word(self):
+        """Записываем слова в """
         log('''
         Введите слово на иностранном языке и слово на русском через ":"
         Пример:
         hello : привет
         ''')
         new_words = input()
-        words_pair = InputFormat.get_words_pair(new_words)
-        eng_word, rus_word = InputFormat.get_rus_and_foreign_word(words_pair)
+        eng_word, rus_word = get_words_pair(new_words)
 
-        self.db.add_word_definition(eng_word, rus_word)
+        self.db.set_words_pair_to_dictionary(eng_word, rus_word)
 
-    def contest_mode(self):
+    def __contest_mode(self):
         """Режим контеста"""
-        log('''
-        Давай проверим твои знания.
-        Я буду вывоводить иностранное слово - нужно ввести перевод
-        Но для начала, скажи, сколько слов будем проверять?
-        ''')
+        log(self.CONTEST_MESSAGE)
 
-        count = self.get_count()
+        count = self.__get_count()
         result = 0
         words_pair = self.db.get_random_words(count)
         for eng, rus in words_pair:
@@ -71,13 +75,13 @@ class Quizlet:
                 print('\nНеправильно, идём дальше\n')
         log(f'Правильно отвечено {result} из {len(words_pair)} слов')
 
-    def print_all_dictionary(self):
+    def __print_all_dictionary(self):
         """Распечатываем весь словарь"""
         for eng, rus in self.db.select_all():
             print(f'{eng.zfill(39).replace("0", " ")} - {rus}')
 
     @staticmethod
-    def print_help():
+    def __print_help():
         """Распечатываем подсказку с командами"""
         log('''
         1 - новые слова
@@ -86,14 +90,14 @@ class Quizlet:
         ''')
 
     @staticmethod
-    def quit():
+    def __quit():
         """Выйти из программы"""
         log('''
         Спасибо за визит, удачи в изучении
         ''')
 
     @staticmethod
-    def get_count() -> int:
+    def __get_count() -> int:
         """Получаем кол-во слов для контеста, дожидаясь числа"""
 
         while True:

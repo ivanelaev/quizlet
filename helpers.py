@@ -1,31 +1,28 @@
 import re
 
 
-class InputFormat:
-    """Класс необходим для обработки входящих данных"""
+def get_words_pair(input_string:  str) -> tuple:
+    """
+    Проверяем введеные значения и разбиваем на пару
 
-    @staticmethod
-    def get_words_pair(input_string:  str) -> tuple:
-        """
-        Разбивает ответ пользователя на 2 слова
-        :param input_string: строка, введеная пользователем
-        :return: tuple с двумя строками: иностранное слово и русское слово
-        """
+    :param input_string: строка, введеная пользователем
+    :return: tuple с двумя строками: иностранное слово и русское слово
+    """
 
-        assert ':' in input_string, 'В строке нет разделителя'
-        input_string = re.sub(' +', ' ', input_string.replace(':', ' : '))
-        first_word, second_word = input_string.split(' : ', 1)
-        assert ':' not in second_word, 'В строке несколько символов-разделителей'
-        return first_word, second_word
+    RUS_RE = r'[а-я]+[-]*[а-я]+'  # Регулярное выражение для проверки того, что слово на русском языке
 
-    @staticmethod
-    def get_rus_and_foreign_word(words: tuple) -> tuple:
-        """
-        Определяет русское и иностранное слово
-        :param words: пара слов
-        :return: tuple с парой в формате (Иностранное слово, Русское слово)
-        """
-        for index, word in enumerate(words):
-            if re.fullmatch(r'[а-я]+[-]*[а-я]+', word.lower()):
-                return words[index-1], words[index]
-        raise AssertionError('Нет слова на русском языке')
+    # Удаляем лишние пробелы.
+    # Разбиваем строку с помощью раздилителя.
+    # Проверяем, что в строке два слова.
+    assert ':' in input_string, 'В строке нет разделителя'
+    input_string = re.sub(' +', ' ', input_string.replace(':', ' : '))
+    words = input_string.split(' : ')
+    assert len(words) == 2, 'В строке несколько символов-разделителей'
+
+    # Проверяем, что одно из слов написано на русском языке, а второе слово не на русском
+    for index, word in enumerate(words):
+        if re.fullmatch(RUS_RE, word.lower()):
+            assert re.fullmatch(RUS_RE, words[index-1].lower()) is None
+            return words[index-1], words[index]
+
+    raise AssertionError('Нет слова на русском языке')
