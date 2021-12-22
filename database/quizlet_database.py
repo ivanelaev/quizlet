@@ -1,11 +1,15 @@
+"""Модуль для работы с базой данных"""
+
 import sqlite3
 
 
 class QuizletDataBase:
     """Класс для работы с базой данных quizlet.db"""
 
-    INSERT_COMMAND = "INSERT INTO Dictionary (foreign_word, rus_word) VALUES ('{}', '{}');"
-    SELECT_RANDOM_COMMAND = "SELECT foreign_word, rus_word FROM Dictionary ORDER BY RANDOM() LIMIT {}"
+    INSERT_COMMAND = """INSERT INTO Dictionary (foreign_word, rus_word)
+                        VALUES ('{}', '{}');"""
+    SELECT_RANDOM_COMMAND = """SELECT foreign_word, rus_word
+                               FROM Dictionary ORDER BY RANDOM() LIMIT {}"""
     SELECT_ALL_COMMAND = "SELECT foreign_word, rus_word FROM Dictionary"
     DROP_TABLE_COMMAND = "DROP TABLE Dictionary"
     INIT_TABLE_COMMAND = """
