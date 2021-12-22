@@ -23,13 +23,11 @@ class QuizletDataBase:
         """Подключаемся к БД"""
 
         self._connection = sqlite3.connect(database='quizlet.db')
-        self._cursor = self._connection.cursor()
 
     def __del__(self):
         """Отключаемся от БД"""
 
         if self._connection:
-            self._cursor.close()
             self._connection.close()
 
     def set_words_pair_to_dictionary(self, foreign_word: str, rus_word: str):
@@ -40,10 +38,10 @@ class QuizletDataBase:
         :param rus_word: слово на русском языке
         """
 
-        self._cursor.execute(
-            self._INSERT_COMMAND.format(foreign_word, rus_word)
-        )
+        cursor = self._connection.cursor()
+        cursor.execute(self._INSERT_COMMAND.format(foreign_word, rus_word))
         self._connection.commit()
+        cursor.close()
 
     def get_random_words(self, count: int):
         """
@@ -53,15 +51,19 @@ class QuizletDataBase:
         :return: Кортеж со строками
         """
 
-        self._cursor.execute(self._SELECT_RANDOM_COMMAND.format(count))
-        result = self._cursor.fetchall()
+        cursor = self._connection.cursor()
+        cursor.execute(self._SELECT_RANDOM_COMMAND.format(count))
+        result = cursor.fetchall()
+        cursor.close()
         return result
 
     def select_all(self):
         """Возвращаем все строки из таблицы"""
 
-        self._cursor.execute(self._SELECT_ALL_COMMAND)
-        result = self._cursor.fetchall()
+        cursor = self._connection.cursor()
+        cursor.execute(self._SELECT_ALL_COMMAND)
+        result = cursor.fetchall()
+        cursor.close()
         return result
 
     # Вспомогательные методы для создания и удаления таблицы
@@ -69,11 +71,15 @@ class QuizletDataBase:
     def init_table(self):
         """Инициализируем таблицу в базе данных"""
 
-        self._cursor.execute(self._INIT_TABLE_COMMAND)
+        cursor = self._connection.cursor()
+        cursor.execute(self._INIT_TABLE_COMMAND)
         self._connection.commit()
+        cursor.close()
 
     def drop_table(self):
         """Удаляем таблицу"""
 
-        self._cursor.execute(self._DROP_TABLE_COMMAND)
+        cursor = self._connection.cursor()
+        cursor.execute(self._DROP_TABLE_COMMAND)
         self._connection.commit()
+        cursor.close()
