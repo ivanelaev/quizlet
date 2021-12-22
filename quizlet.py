@@ -10,59 +10,59 @@ from log import log, log_text_block, get_user_input
 class Quizlet:
     """Класс, выполняющий команды пользователя"""
 
-    MENU_MESSAGE = """
+    _MENU_MESSAGE = """
         Для того, чтобы записать новые слова, введи 1
         Для того, чтобы проверить свои знания, введи 2
         Для того, чтобы посмотреть весь словарь, введи 3
         Чтобы выйти, нажмите "Enter" при вводе команды
         """
-    CONTEST_MESSAGE = """
+    _CONTEST_MESSAGE = """
         Давай проверим твои знания.
         Я буду вывоводить иностранное слово - нужно ввести перевод
         Но для начала, скажи, сколько слов будем проверять?
         """
-    ADD_WORD_MESSAGE = """
+    _ADD_WORD_MESSAGE = """
         Введите пару слов на иностранном языке и на русском разделенных ":"
         Пример:
         "hello : привет" или "привет : hello"
         """
-    BACK_TO_MENU_MESSAGE = """
+    _BACK_TO_MENU_MESSAGE = """
         Чтобы вернуться в меню нажмите "Enter"
         """
 
     def __init__(self):
-        self.data_base = QuizletDataBase()
+        self._data_base = QuizletDataBase()
 
     def add_word(self):
         """Записываем слова в словарь"""
 
-        log_text_block(self.ADD_WORD_MESSAGE + self.BACK_TO_MENU_MESSAGE)
+        log_text_block(self._ADD_WORD_MESSAGE + self._BACK_TO_MENU_MESSAGE)
         new_words = get_user_input('Введите пару слов: ')
         if new_words:
             eng_word, rus_word = get_words_pair(new_words)
-            self.data_base.set_words_pair_to_dictionary(eng_word, rus_word)
+            self._data_base.set_words_pair_to_dictionary(eng_word, rus_word)
 
     def contest_mode(self):
         """Режим контеста"""
 
-        log_text_block(self.CONTEST_MESSAGE + self.BACK_TO_MENU_MESSAGE)
+        log_text_block(self._CONTEST_MESSAGE + self._BACK_TO_MENU_MESSAGE)
         count = self.__get_count()
         if count is None:  # Обрабатываем пустой ввод
             return
-        word_pairs = self.data_base.get_random_words(count)
+        word_pairs = self._data_base.get_random_words(count)
         result = self.__check_knowledge(word_pairs)
         log(f'Правильно отвечено {result} из {len(word_pairs)} слов')
 
     def print_all_dictionary(self):
         """Распечатываем весь словарь"""
 
-        for eng, rus in self.data_base.select_all():
+        for eng, rus in self._data_base.select_all():
             print(f'{eng.zfill(39).replace("0", " ")} - {rus}')
 
     def print_menu(self):
         """Распечатываем меню"""
 
-        log_text_block(self.MENU_MESSAGE)
+        log_text_block(self._MENU_MESSAGE)
 
     @staticmethod
     def __get_count() -> Optional[int]:

@@ -6,13 +6,13 @@ import sqlite3
 class QuizletDataBase:
     """Класс для работы с базой данных quizlet.db"""
 
-    INSERT_COMMAND = """INSERT INTO Dictionary (foreign_word, rus_word)
+    _INSERT_COMMAND = """INSERT INTO Dictionary (foreign_word, rus_word)
                         VALUES ('{}', '{}');"""
-    SELECT_RANDOM_COMMAND = """SELECT foreign_word, rus_word
+    _SELECT_RANDOM_COMMAND = """SELECT foreign_word, rus_word
                                FROM Dictionary ORDER BY RANDOM() LIMIT {}"""
-    SELECT_ALL_COMMAND = "SELECT foreign_word, rus_word FROM Dictionary"
-    DROP_TABLE_COMMAND = "DROP TABLE Dictionary"
-    INIT_TABLE_COMMAND = """
+    _SELECT_ALL_COMMAND = "SELECT foreign_word, rus_word FROM Dictionary"
+    _DROP_TABLE_COMMAND = "DROP TABLE Dictionary"
+    _INIT_TABLE_COMMAND = """
                 CREATE TABLE Dictionary(
                 id INTEGER PRIMARY KEY,
                 foreign_word varchar(50) NOT NULL,
@@ -22,13 +22,15 @@ class QuizletDataBase:
     def __init__(self):
         """Подключаемся к БД"""
 
-        self.connection = sqlite3.connect(database='quizlet.db')
+        self._connection = sqlite3.connect(database='quizlet.db')
+        self._cursor = self._connection.cursor()
 
     def __del__(self):
         """Отключаемся от БД"""
 
-        if self.connection:
-            self.connection.close()
+        if self._connection:
+            self._cursor.close()
+            self._connection.close()
 
     def set_words_pair_to_dictionary(self, foreign_word: str, rus_word: str):
         """
@@ -38,10 +40,10 @@ class QuizletDataBase:
         :param rus_word: слово на русском языке
         """
 
-        cursor = self.connection.cursor()
-        cursor.execute(self.INSERT_COMMAND.format(foreign_word, rus_word))
-        self.connection.commit()
-        cursor.close()
+        self._cursor.execute(
+            self._INSERT_COMMAND.format(foreign_word, rus_word)
+        )
+        self._connection.commit()
 
     def get_random_words(self, count: int):
         """
@@ -51,19 +53,15 @@ class QuizletDataBase:
         :return: Кортеж со строками
         """
 
-        cursor = self.connection.cursor()
-        cursor.execute(self.SELECT_RANDOM_COMMAND.format(count))
-        result = cursor.fetchall()
-        cursor.close()
+        self._cursor.execute(self._SELECT_RANDOM_COMMAND.format(count))
+        result = self._cursor.fetchall()
         return result
 
     def select_all(self):
         """Возвращаем все строки из таблицы"""
 
-        cursor = self.connection.cursor()
-        cursor.execute(self.SELECT_ALL_COMMAND)
-        result = cursor.fetchall()
-        cursor.close()
+        self._cursor.execute(self._SELECT_ALL_COMMAND)
+        result = self._cursor.fetchall()
         return result
 
     # Вспомогательные методы для создания и удаления таблицы
@@ -71,15 +69,11 @@ class QuizletDataBase:
     def init_table(self):
         """Инициализируем таблицу в базе данных"""
 
-        cursor = self.connection.cursor()
-        cursor.execute(self.INIT_TABLE_COMMAND)
-        self.connection.commit()
-        cursor.close()
+        self._cursor.execute(self._INIT_TABLE_COMMAND)
+        self._connection.commit()
 
     def drop_table(self):
         """Удаляем таблицу"""
 
-        cursor = self.connection.cursor()
-        cursor.execute(self.DROP_TABLE_COMMAND)
-        self.connection.commit()
-        cursor.close()
+        self._cursor.execute(self._DROP_TABLE_COMMAND)
+        self._connection.commit()
